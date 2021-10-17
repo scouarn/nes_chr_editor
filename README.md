@@ -18,6 +18,7 @@ Run `make clean all`. If you want a symbolic link created in /usr/local/bin run 
 
 
 ## Controls :
+| key 				| action 	  |
 |-------------------|-------------|
 | Arrow keys 		| move cursor |
 | Numpad / enter 	| change tile |
