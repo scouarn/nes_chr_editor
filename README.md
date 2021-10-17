@@ -19,12 +19,12 @@ Run `make clean all`. If you want a symbolic link created in /usr/local/bin run 
 
 ## Controls :
 
-- Arrow keys 	 : move cursor
-- Numpad / enter : change tile
-- Page up / down : cycle active color
-- C / V 		 : copy and paste
-- S 			 : save
-- R 			 : reload file
-- Escape 		 : exit
-- Space 		 : draw
-- X 			 : erase
+Arrow keys 	| move cursor
+Numpad / enter | change tile
+Page up / down | cycle active color
+C / V 		 | copy and paste
+S 			 | save
+R 			 | reload file
+Escape 		 | exit
+Space 		 | draw
+X 			 | erase
