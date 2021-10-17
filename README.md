@@ -9,7 +9,7 @@ Tile editor for NES character rom.
 
 
 ## Building / Installation :
-Run `make clean all`. If you want a symbolic link created in /usr/local/bin run `sudo make install`. 
+Run `make clean all`. If you want a symbolic link created in _/usr/local/bin_ run `sudo make install`. 
 
 
 ## Usage :
@@ -29,3 +29,5 @@ Run `make clean all`. If you want a symbolic link created in /usr/local/bin run 
 | Escape 		 	| exit |
 | Space 		 	| draw |
 | X 			 	| erase |
+
+-- Moving cursors can be done with the mouse. 
