@@ -3,6 +3,12 @@
 Tile editor for NES character rom.
 
 
+## TODO :
+- Better editing tools (fill, paint with number keys...)
+- Change palette with keyboard
+- Multi page support (for char roms larger than 4k)
+
+
 ## Dependencies :
 - ezgfx https://github.com/scouarn/ezGfx
 	(.so provided here, compiled under arch linux)
@@ -31,3 +37,4 @@ Run `make clean all`. If you want a symbolic link created in _/usr/local/bin_ ru
 | X 			 	| erase |
 
 -- Moving cursors can be done with the mouse. 
+
