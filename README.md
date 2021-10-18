@@ -24,17 +24,17 @@ Run `make clean all`. If you want a symbolic link created in _/usr/local/bin_ ru
 
 
 ## Controls :
-| key 				| action 	  |
-|-------------------|-------------|
-| Arrow keys 		| move cursor |
-| Numpad / enter 	| change tile |
-| Page up / down 	| cycle active color |
-| C / V 		 	| copy and paste |
-| S 			 	| save |
-| R 			 	| reload file |
-| Escape 		 	| exit |
-| Space 		 	| draw |
-| X 			 	| erase |
+| key 				| action 	  		  |
+|-------------------|---------------------|
+| Arrow keys 		| move cursor 		  |
+| Number keys 1-4 	| draw 				  |
+| Numpad		 	| change tile  		  |
+| Page up / down 	| cycle active color  |
+| Plus / minus      | change active color |
+| C / V 		 	| copy and paste tile |
+| S 			 	| save file			  |
+| R 			 	| reload file 		  |
+| Escape 		 	| exit 				  |
 
--- Moving cursors can be done with the mouse. 
+-- Most actions can be done with the mouse and left clic. 
 

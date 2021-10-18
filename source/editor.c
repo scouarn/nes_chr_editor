@@ -349,16 +349,11 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 
 	//move character selector
-	case KP_4 : select_x -= inc; select_x %= MAP_SIZE * 2; break;
-	case KP_8 : select_y -= inc; select_y %= MAP_SIZE; 	  break;
-	case KP_6 :	select_x += inc; select_x %= MAP_SIZE * 2; break;
-	case KP_2 : select_y += inc; select_y %= MAP_SIZE; 	  break;
+	case KP_4 : select_x -= inc; select_x %= MAP_SIZE * 2; edit_char = id_of_coords(select_x, select_y); break;
+	case KP_8 : select_y -= inc; select_y %= MAP_SIZE; 	   edit_char = id_of_coords(select_x, select_y); break;
+	case KP_6 :	select_x += inc; select_x %= MAP_SIZE * 2; edit_char = id_of_coords(select_x, select_y); break;
+	case KP_2 : select_y += inc; select_y %= MAP_SIZE; 	   edit_char = id_of_coords(select_x, select_y); break;
 
-
-	//update selector
-	case K_RETURN :
-	 	edit_char = id_of_coords(select_x, select_y); 
- 	break;
 
 
  	//active color slot
