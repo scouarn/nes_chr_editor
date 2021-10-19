@@ -8,7 +8,7 @@ TARGET := chredit
 INSTALL := /usr/local/bin
 
 SOURCES := $(wildcard source/*.c)
-OBJECTS := $(patsubst source/%.c,bin/%.o,$(SOURCES))
+OBJECTS := $(patsubst %.c,%.o,$(SOURCES))
 
 
 
@@ -17,7 +17,7 @@ all : $(TARGET)
 $(TARGET) : $(OBJECTS)
 	$(CC) $(CFLAGS) -I$(INCLUDE) $(LIBS) -o $@ $^ 
 
-bin/%.o : source/%.c
+%.o : %.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -o $@ -c $<
 
 
