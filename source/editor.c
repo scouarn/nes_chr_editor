@@ -71,6 +71,9 @@ void set_pixel(unsigned int id, int x, int y, int col) {
 	unsigned char* plane1 = chr_data + (id * BLOCK_SIZE * NB_PLANES);
 	unsigned char* plane2 = plane1 + BLOCK_SIZE;
 
+	if (hflip) x = BLOCK_SIZE - x - 1;
+	if (vflip) y = BLOCK_SIZE - y - 1; 
+
 	int offset = BLOCK_SIZE - x - 1;
 
 	plane1[y] &= ~(1 << offset);
@@ -78,6 +81,7 @@ void set_pixel(unsigned int id, int x, int y, int col) {
 
 	plane1[y] |= (col  & 1) << offset;
 	plane2[y] |= (col >> 1) << offset;
+
 }
 
 
@@ -441,7 +445,7 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 
 	//screenshot
-	case K_TAB : 
+	case K_TAB :
 		printf("Saving screenshot\n");
 		EZ_save_BMP(canvas, "./screenshot.bmp");
 	break;

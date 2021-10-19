@@ -4,9 +4,11 @@ Tile editor for NES character rom.
 
 
 ## TODO :
-- Better editing tools (fill, paint with number keys...)
-- Change palette with keyboard
-- Multi page support (for char roms larger than 4k)
+- Better editing tools (fill, swap colors)
+- Multiple saved palettes
+- Support for char roms larger than 8k / with variable size
+- Meta sprite view
+- Controls config
 
 
 ## Dependencies :
@@ -24,17 +26,22 @@ Run `make clean all`. If you want a symbolic link created in _/usr/local/bin_ ru
 
 
 ## Controls :
-| key 				| action 	  		  |
+| Key 				| Action 	  		  |
 |-------------------|---------------------|
-| Arrow keys 		| move cursor 		  |
-| Number keys 1-4 	| draw 				  |
-| Numpad		 	| change tile  		  |
-| Page up / down 	| cycle active color  |
-| Plus / minus      | change active color |
-| C / V 		 	| copy and paste tile |
-| S 			 	| save file			  |
-| R 			 	| reload file 		  |
-| Escape 		 	| exit 				  |
+| Numpad		 	| Change tile  		  |
+| Arrow keys 		| Move cursor 		  |
+| Number keys 1-4 	| Draw 				  |
+| F 				| Toggle hflip		  |
+| G 				| Toggle vflip	 	  |
+| Page up / down 	| Cycle active color  |
+| Plus / minus      | Change active color |
+| Ctrl 				| Increment of 4 	  |
+| C 			 	| Copy tile 		  |
+| V 			 	| Paste tile 		  |
+| S 			 	| Save file			  |
+| R 			 	| Reload file 		  |
+| Tab 				| Screenshot (bmp)	  |
+| Escape 		 	| Exit 				  |
 
--- Most actions can be done with the mouse and left clic. 
+-- Most actions can be done with the mouse and left click. 
 
