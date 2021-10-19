@@ -8,8 +8,8 @@ Tile editor for NES character rom.
 - Multiple saved palettes
 - Support for char roms larger than 8k / with variable size
 - Meta sprite view
-- Controls config
-
+- Controls config ==>> numpad not portable
+- Implementation with a "mainstream"/"good" gfx lib
 
 ## Dependencies :
 - ezgfx https://github.com/scouarn/ezGfx
@@ -17,7 +17,7 @@ Tile editor for NES character rom.
 
 
 ## Building / Installation :
-Run `make clean all`. If you want a symbolic link created in _/usr/local/bin_ run `sudo make install`. 
+Run `make clean all`. Then if you want a symbolic link created in _/usr/local/bin_ run `sudo make install`. 
 
 
 ## Usage :
