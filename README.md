@@ -4,12 +4,13 @@ Tile editor for NES character rom.
 
 
 ## TODO :
-- Better editing tools (fill, swap colors)
-- Multiple saved palettes
-- Support for char roms larger than 8k / with variable size
-- Meta sprite view
-- Controls config ==>> numpad not portable
 - Implementation with a "mainstream"/"good" gfx lib
+- Support for char roms larger than 8k
+- Portable local path/link solution
+- Multiple saved palettes
+- Controls config ==>> numpad not portable
+- Better editing tools (fill, swap colors)
+- Meta sprite view
 
 ## Dependencies :
 - ezgfx https://github.com/scouarn/ezGfx

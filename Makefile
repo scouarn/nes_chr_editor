@@ -21,6 +21,7 @@ $(TARGET) : $(OBJECTS)
 	$(CC) $(CFLAGS) -I$(INCLUDE) -o $@ -c $<
 
 
+.PHONY : install
 install : $(TARGET)
 	ln -sf `pwd`/chredit $(INSTALL)
 
