@@ -1,7 +1,7 @@
 # NES char editor
 
 Tile editor for NES character rom.
-
+Only works on linux (for now).
 
 ## TODO :
 - Implementation with a "mainstream"/"good" gfx lib
@@ -11,6 +11,7 @@ Tile editor for NES character rom.
 - Controls config ==>> numpad not portable
 - Better editing tools (fill, swap colors)
 - Meta sprite view
+- Nametable editor
 
 ## Dependencies :
 - ezgfx https://github.com/scouarn/ezGfx
