@@ -35,16 +35,11 @@ Run `make clean all`. Then if you want a symbolic link created in _/usr/local/bi
 |-------------------|---------------------------|
 | Arrow keys 		| Move char edit cursor    	|
 | Number keys 1-4 	| Draw 				  		|
-
 | Shift+arrows	 	| Move char map cursor  	|
 | C 			 	| Copy char 		  		|
 | V 			 	| Paste char 		  		|
-
-
 | Square brackets 	| Cycle active color  		|
 | Plus / minus      | Change active color 		|
-
-
 | Page up / down 	| Cycle chr bank      		|
 | Alt+arrows		| Move nametable cursor 	|
 | Return 			| Set tile to active char	|
@@ -52,8 +47,6 @@ Run `make clean all`. Then if you want a symbolic link created in _/usr/local/bi
 | F 				| Toggle tile hflip  		|
 | G 				| Toggle tile vflip	  		|
 | P 				| Point tile's char	id		|
-
-
 | Ctrl 				| Increment of 4 	  		|
 | Ctrl+S		 	| Save file			  		|
 | Ctrl+Z		 	| Reload file 		  		|
