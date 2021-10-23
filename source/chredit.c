@@ -10,41 +10,55 @@
 
 #define NB_TILES 256
 #define NB_PLANES  2
-#define NB_MAPS		 2 
+#define NB_BANKS   2 
 #define BLOCK_SIZE 8
+
+#define EDIT_RES  32
+
 #define MAP_SIZE  16
-#define EDIT_RES  16
+#define MAP_RES    2
+
 #define PAL_SIZE  64
-#define PAL_RES    8
+#define PAL_RES   16
+
+#define TABLE_W   32
+#define TABLE_H   30
+#define TABLE_SIZE 1024
+#define TABLE_RES  1
 
 #define BORDER_COLOR EZ_WHITE
+#define CURSOR_COLOR EZ_YELLOW
 
-char* fname;
+char*  nt_file_name;
+char* chr_file_name;
+
 char* local;
 
 EZ_Image canvas;
 EZ_Font  font;
 
 
-uint cursor_x, cursor_y;
-uint select_x, select_y;
+uint cursor_x = 0, cursor_y = 0;
+uint select_x = 0, select_y = 0;
+uint ntable_x = 0, ntable_y = 0;
 
-uint edit_char = 0;
+uint active_bank = 0;
+uint active_slot = 0;
 
-bool hflip = false;
-bool vflip = false;
+#define EDIT_CHAR (NB_TILES*active_bank + select_x + select_y*MAP_SIZE)
 
 
 EZ_Px NES_palette[PAL_SIZE];
 uint8_t palette[4] = {0x00, 0x16, 0x37, 0x08}; //mario face palette
-uint active_slot = 1;
+
 
 uint8_t clipboard[BLOCK_SIZE * NB_PLANES];
-uint8_t chr_data[NB_TILES * NB_PLANES * NB_MAPS * BLOCK_SIZE];
+uint8_t chr_data[NB_TILES * NB_PLANES * NB_BANKS * BLOCK_SIZE];
+uint8_t nametable[TABLE_SIZE];
 
 
 
-void draw_block(int id, int x0, int y0, int res) {
+void draw_block(int id, int x0, int y0, int res, bool hflip, bool vflip) {
 
 
 	unsigned char* plane1 = chr_data + (id * BLOCK_SIZE * NB_PLANES);
@@ -65,7 +79,7 @@ void draw_block(int id, int x0, int y0, int res) {
 		int yf = !vflip ? y : BLOCK_SIZE - y - 1;
 
 
-		EZ_draw2D_fillRect(canvas, col, (x0+xf) * res, (y0+yf) * res, res, res);
+		EZ_draw2D_fillRect(canvas, col, x0 + (xf) * res, y0 + (yf) * res, res, res);
 
 	}
 
@@ -75,9 +89,6 @@ void draw_block(int id, int x0, int y0, int res) {
 void set_pixel(unsigned int id, int x, int y, int col) {
 	unsigned char* plane1 = chr_data + (id * BLOCK_SIZE * NB_PLANES);
 	unsigned char* plane2 = plane1 + BLOCK_SIZE;
-
-	if (hflip) x = BLOCK_SIZE - x - 1;
-	if (vflip) y = BLOCK_SIZE - y - 1; 
 
 	int offset = BLOCK_SIZE - x - 1;
 
@@ -94,10 +105,10 @@ void set_pixel(unsigned int id, int x, int y, int col) {
 void reload_data() {
 
 	//read data from input file	
-	FILE* charfile = fopen(fname, "r");
+	FILE* charfile = fopen(chr_file_name, "r");
 
 	if (charfile != NULL) {
-		fread(chr_data, 1, NB_TILES * BLOCK_SIZE * NB_PLANES, charfile);
+		fread(chr_data, 1, NB_TILES * NB_BANKS * BLOCK_SIZE * NB_PLANES, charfile);
 		fclose(charfile);
 	}
 
@@ -144,7 +155,7 @@ void EZ_callback_init() {
 
 
 	//create window
-	canvas = EZ_createImage(256,256);
+	canvas = EZ_createImage(512,512);
 	EZ_bind(canvas);
 
 
@@ -158,28 +169,43 @@ void EZ_callback_draw(double dt) {
 	EZ_draw2D_setTranslate(0, 0);
 
 
+
+
 	//edit char
-	draw_block(edit_char, 0, 0, EDIT_RES);
+	draw_block(EDIT_CHAR, 0, 0, EDIT_RES, false, false);
 
 
-	//1st char map
+	//char map
 	for (int x = 0; x < MAP_SIZE; x++)
 	for (int y = 0; y < MAP_SIZE; y++) {
 
-		draw_block(x + y*MAP_SIZE, x * BLOCK_SIZE, canvas.h/2 + y*BLOCK_SIZE, 1);
+		draw_block(active_bank*NB_TILES + x + y*MAP_SIZE, 
+				   x*BLOCK_SIZE*MAP_RES, 
+				   canvas.h/2 + y*BLOCK_SIZE*MAP_RES, 
+				   MAP_RES, 
+				   false, 
+				   false
+				);
 
 	}
 
-	//2nd char map
-	for (int x = 0; x < MAP_SIZE; x++)
-	for (int y = 0; y < MAP_SIZE; y++) {
+	//nametable
+	for (int x = 0; x < TABLE_W; x++)
+	for (int y = 0; y < TABLE_H; y++) {
 
-		draw_block(NB_TILES + x + y*MAP_SIZE, canvas.w/2 + x*BLOCK_SIZE, canvas.h/2 + y*BLOCK_SIZE, 1);
+		draw_block(NB_TILES*active_bank + nametable[x + y*TABLE_W], 
+				   canvas.w/2 + x*BLOCK_SIZE*TABLE_RES, 
+				   canvas.h/2 + y*BLOCK_SIZE*TABLE_RES, 
+				   1, 
+				   false, 
+				   false
+				);
 
 	}
 
 
-	//whole palette
+
+	//color palette
 	for (int i = 0; i < 16; i++)
 	for (int j = 0; j <  4; j++)
 		EZ_draw2D_fillRect(
@@ -198,21 +224,13 @@ void EZ_callback_draw(double dt) {
 	int x = col % 16;
 	int y = col / 16;
 
-	EZ_draw2D_rect(
-			canvas, BORDER_COLOR, 
-			canvas.w/2 + x*PAL_RES, 
-			y*PAL_RES, 
-			PAL_RES, PAL_RES
-		);
-	}
 
-
-	//current palette (with IDs)
+	//current 4 color palette (with IDs)
 	for (int i = 0; i < 4; i++) {
 
 		//color square
 		EZ_draw2D_fillRect(canvas, NES_palette[palette[i]],
-			BLOCK_SIZE*EDIT_RES + i*PAL_RES*4, PAL_RES*4,
+			canvas.w/2 + i*PAL_RES*4, PAL_RES*4,
 			PAL_RES*4, PAL_RES*4 
 
 		);
@@ -222,64 +240,11 @@ void EZ_callback_draw(double dt) {
 		sprintf(buffer, "%02X", palette[i]);
 		EZ_draw2D_printStr(
 			canvas, buffer, font, EZ_WHITE, EZ_BLUE, 
-			BLOCK_SIZE*EDIT_RES + i*PAL_RES*4, PAL_RES*4,
+			canvas.w/2 + i*PAL_RES*4, PAL_RES*4,
 			2, 1
 		);
 
 	}
-
-
-
-
-	//informations
-	char buffer[64];
-
-	sprintf(buffer, "Editing $%02X", edit_char);
-
-	EZ_draw2D_printStr(canvas, buffer, font, 
-			BORDER_COLOR, EZ_BLUE, 
-			canvas.w/2 + font.w_px, 
-			canvas.h/4,
-			16, 1
-	);
-
-	if (hflip)	
-	EZ_draw2D_printStr(canvas, "HFLIP", font, 
-			BORDER_COLOR, EZ_BLUE, 
-			canvas.w/2 + font.w_px, 
-			canvas.h/4 + font.h_px,
-			16, 1
-	);
-
-	if (vflip)	
-	EZ_draw2D_printStr(canvas, "VFLIP", font, 
-			BORDER_COLOR, EZ_BLUE, 
-			canvas.w/2 + font.w_px, 
-			canvas.h/4 + font.h_px*2,
-			16, 1
-	);
-
-
-
-	//cursor 
-	EZ_draw2D_rect(canvas, BORDER_COLOR, 
-		cursor_x*EDIT_RES, 
-		cursor_y*EDIT_RES, 
-		EDIT_RES, EDIT_RES
-	);
-
-	//select
-	EZ_draw2D_rect(canvas, BORDER_COLOR, 
-		select_x*BLOCK_SIZE, 
-		BLOCK_SIZE*EDIT_RES + select_y*BLOCK_SIZE, 
-		BLOCK_SIZE, BLOCK_SIZE
-	);
-
-	//active color slot (cursor)
-	EZ_draw2D_rect(canvas, BORDER_COLOR, 
-		BLOCK_SIZE*EDIT_RES + active_slot*PAL_RES*4, PAL_RES*4,
-		PAL_RES*4, PAL_RES*4 
-	);
 
 
 	//borders
@@ -287,18 +252,61 @@ void EZ_callback_draw(double dt) {
 	EZ_draw2D_line(canvas, BORDER_COLOR, canvas.w/2, 0, canvas.w/2, canvas.h);
 
 
-	
-	
+
+	//cursor 
+	EZ_draw2D_rect(canvas, CURSOR_COLOR, 
+		cursor_x*EDIT_RES, 
+		cursor_y*EDIT_RES, 
+		EDIT_RES, EDIT_RES
+	);
+
+	//select
+	EZ_draw2D_rect(canvas, CURSOR_COLOR,
+		select_x*BLOCK_SIZE*MAP_RES, 
+		canvas.h/2 + select_y*BLOCK_SIZE*MAP_RES, 
+		BLOCK_SIZE*MAP_RES, BLOCK_SIZE*MAP_RES
+	);
+
+	//name table cursor
+	EZ_draw2D_rect(canvas, CURSOR_COLOR, 
+		canvas.w/2 + ntable_x*BLOCK_SIZE, 
+		canvas.h/2 + ntable_y*BLOCK_SIZE, 
+		BLOCK_SIZE, BLOCK_SIZE
+	);
+
+	//active color slot (cursor)
+	EZ_draw2D_rect(canvas, CURSOR_COLOR, 
+		canvas.w/2 + active_slot*PAL_RES*4, 
+		PAL_RES*4,
+		PAL_RES*4, PAL_RES*4 
+	);
+
+
+	//color select cursor
+	EZ_draw2D_rect(
+			canvas, CURSOR_COLOR, 
+			canvas.w/2 + x*PAL_RES, 
+			y*PAL_RES, 
+			PAL_RES, PAL_RES
+		);
+	}
+
+
+	//informations
+	char buffer[64];
+
+	sprintf(buffer, "Editing $%02X\nTile at %d, %d\n", EDIT_CHAR, ntable_x, ntable_y);
+
+	EZ_draw2D_printStr(canvas, buffer, font, 
+			BORDER_COLOR, EZ_BLUE, 
+			canvas.w/2 + font.w_px, 
+			canvas.h/4,
+			24, 16
+	);
+
+
 }
 
-
-int id_of_coords(int x, int y) {
-	uint selected = (x % MAP_SIZE) + y*MAP_SIZE;
-
-	if (x >= MAP_SIZE) selected += NB_TILES;
-
-	return selected;
-}
 
 
 void onclick() {
@@ -315,16 +323,14 @@ void onclick() {
 
 	//bottom left
 	else if (x < canvas.w/2 && y > canvas.h/2 && y < canvas.h) {
-		select_x = x / BLOCK_SIZE;
-		select_y = (y - canvas.h/2) / BLOCK_SIZE;
-		edit_char = id_of_coords(select_x, select_y);
+		select_x = x / (BLOCK_SIZE * MAP_RES);
+		select_y = (y - canvas.h/2) / (BLOCK_SIZE * MAP_RES);
 	}
 
 	//bottom right
 	else if (x > canvas.w/2 && x < canvas.w && y > canvas.h/2 && y < canvas.h) {
-		select_x = x / BLOCK_SIZE;
-		select_y = (y - canvas.h/2) / BLOCK_SIZE;
-		edit_char = id_of_coords(select_x, select_y);
+		ntable_x = (x - canvas.w/2) / (BLOCK_SIZE * TABLE_RES);
+		ntable_y = (y - canvas.h/2) / (BLOCK_SIZE * TABLE_RES);
 	}
 
 	//top right
@@ -347,8 +353,11 @@ void onclick() {
 
 void EZ_callback_keyPressed(EZ_Key key) {
 
-	EZ_Key ctrl = EZ_getKey(K_LCTRL);
-	int inc = ctrl.held*3 + 1;
+	bool ctrl  = EZ_getKey(K_LCTRL).held  || EZ_getKey(K_RCTRL).held;
+	bool alt   = EZ_getKey(K_LALT).held   || EZ_getKey(K_RALT).held;
+	bool shift = EZ_getKey(K_LSHIFT).held || EZ_getKey(K_RSHIFT).held;
+
+	int inc = ctrl*3 + 1;
 
 	switch (key.keyCode) {
 
@@ -360,30 +369,48 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 
 	//move cursor
-	case K_LEFT  : cursor_x -= inc; cursor_x %= BLOCK_SIZE; break;
-	case K_UP    : cursor_y -= inc; cursor_y %= BLOCK_SIZE; break;
-	case K_RIGHT : cursor_x += inc; cursor_x %= BLOCK_SIZE; break;
-	case K_DOWN  : cursor_y += inc; cursor_y %= BLOCK_SIZE; break;
+	case K_LEFT  : 
+		if    (shift) {select_x -= inc; select_x %= MAP_SIZE;}
+		else if (alt) {ntable_x -= inc; ntable_x %= TABLE_W;}
+		else 	 	  {cursor_x -= inc; cursor_x %= BLOCK_SIZE;} 
+	break;
 
+	case K_UP    :
+		if 	  (shift) {select_y -= inc; select_y %= MAP_SIZE;}
+		else if (alt) {ntable_y -= inc; ntable_y %= TABLE_H;}
+		else 	      {cursor_y -= inc; cursor_y %= BLOCK_SIZE;}
+	break;
 
-	//move character selector
-	case KP_4 : select_x -= inc; select_x %= MAP_SIZE * 2; edit_char = id_of_coords(select_x, select_y); break;
-	case KP_8 : select_y -= inc; select_y %= MAP_SIZE; 	   edit_char = id_of_coords(select_x, select_y); break;
-	case KP_6 :	select_x += inc; select_x %= MAP_SIZE * 2; edit_char = id_of_coords(select_x, select_y); break;
-	case KP_2 : select_y += inc; select_y %= MAP_SIZE; 	   edit_char = id_of_coords(select_x, select_y); break;
+	case K_RIGHT : 
+		if    (shift) {select_x += inc; select_x %= MAP_SIZE;}
+		else if (alt) {ntable_x += inc; ntable_x %= TABLE_W;}
+		else 	      {cursor_x += inc; cursor_x %= BLOCK_SIZE;}
+	break;
+
+	case K_DOWN  : 
+		if    (shift) {select_y += inc; select_y %= MAP_SIZE;}
+		else if (alt) {ntable_y += inc; ntable_y %= TABLE_H;}
+		else 	 	  {cursor_y += inc; cursor_y %= BLOCK_SIZE;} 
+	break;
 
 
 
  	//active color slot
- 	case K_PGUP :
+ 	case K_OPEN :
+ 		active_slot -= inc; 
+ 		active_slot %= 4;
+ 	break;
+
+ 	case K_CLOSE :
  		active_slot += inc; 
  		active_slot %= 4;
  	break;
 
- 	case K_PGDN :
- 		active_slot -= inc; 
- 		active_slot %= 4;
- 	break;
+
+	//draw
+	case K_1 ... K_4 :
+		set_pixel(EDIT_CHAR, cursor_x, cursor_y, key.keyCode - K_1);
+	break;
 
 
  	//change color
@@ -397,30 +424,56 @@ void EZ_callback_keyPressed(EZ_Key key) {
 		palette[active_slot] %= PAL_SIZE; 	
  	break;
 
+	case K_PGDN :
+		active_bank += inc;
+		active_bank %= NB_BANKS;
+	break;
 
-	//draw
-	case K_1 ... K_4 :
-		set_pixel(edit_char, cursor_x, cursor_y, key.keyCode - K_1);
+	case K_PGUP :
+		active_bank += inc;
+		active_bank %= NB_BANKS;
 	break;
 
 
-	//toggle hflip
+
+	//set tile to edit char
+	case K_RETURN :
+		nametable[ntable_x + ntable_y*TABLE_W] = select_x + select_y*MAP_SIZE;
+	break;
+
+	//set tile to 0
+	case K_DEL :
+		nametable[ntable_x + ntable_y*TABLE_W] = 0;
+	break;
+
+
+	//flip horizontally
 	case K_F :
-		hflip = !hflip;
+
 	break;
 
 
-	//toggle vflip
+	//flip vertically
 	case K_G :
-		vflip = !vflip;
+
 	break;
+
+
+	//point
+	case K_P : {
+		int i = nametable[ntable_x + ntable_y*TABLE_W];
+		select_x = i % MAP_SIZE;
+		select_y = i / MAP_SIZE;
+	}
+	break;
+
 
 
 	//copy
 	case K_C :
+	
 		for (int i = 0; i < BLOCK_SIZE * NB_PLANES; i++) {
-			uint selected = id_of_coords(select_x, select_y);
-			clipboard[i] = chr_data[i + selected * BLOCK_SIZE * NB_PLANES]; 
+			clipboard[i] = chr_data[i + EDIT_CHAR * BLOCK_SIZE * NB_PLANES]; 
 		}
 
 	break;
@@ -429,31 +482,39 @@ void EZ_callback_keyPressed(EZ_Key key) {
 	//paste
 	case K_V :
 		for (int i = 0; i < BLOCK_SIZE * NB_PLANES; i++) {
-			uint selected = id_of_coords(select_x, select_y);
-			chr_data[i + selected * BLOCK_SIZE * NB_PLANES] = clipboard[i]; 
+			chr_data[i + EDIT_CHAR * BLOCK_SIZE * NB_PLANES] = clipboard[i]; 
 		}
 	break;
 
 
+
 	//reload
-	case K_R :
-		printf("Reloading %s\n", fname);
-		reload_data();
+	case K_Z :
+
+		if (ctrl) {
+			printf("Reloading %s\n", chr_file_name);
+			reload_data();
+		}	
+
 	break;
 
 
 	//save
 	case K_S :
-		printf("Saving %s\n", fname);
-		
-		FILE* charfile = fopen(fname, "w");
 
-		if (charfile != NULL) {
-			fwrite(chr_data, 1, NB_TILES * BLOCK_SIZE * NB_PLANES, charfile);
-			fclose(charfile);
+		if (ctrl) {
+			printf("Saving %s\n", chr_file_name);
+			
+			FILE* charfile = fopen(chr_file_name, "w");
+
+			if (charfile != NULL) {
+				fwrite(chr_data, 1, NB_TILES * NB_BANKS * BLOCK_SIZE * NB_PLANES, charfile);
+				fclose(charfile);
+			}
+			else 
+				WARNING("Couldn't write to file %s", chr_file_name);
 		}
-		else 
-			WARNING("Couldn't write to file %s", fname);
+
 
 	break;
 
@@ -510,7 +571,7 @@ int main (int argc, char **argv) {
 
 
 	if(argc > 1)
-		fname = argv[1];
+		chr_file_name = argv[1];
 
 	else {
 		printf(usage);

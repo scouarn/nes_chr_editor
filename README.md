@@ -4,14 +4,17 @@ Tile editor for NES character rom.
 Only works on linux (for now).
 
 ## TODO :
-- Implementation with a "mainstream"/"good" gfx lib
+- Attribute table (flips, palette)
+- Save nametable 
+- Copy tile (+its attributes)
+- 4 background palettes
+
 - Support for char roms larger than 8k
-- Portable local path/link solution
-- Multiple saved palettes
-- Controls config ==>> numpad not portable
-- Better editing tools (fill, swap colors)
-- Meta sprite view
-- Nametable editor
+- Controls config
+- Portable local path/link solution -- config.h ?
+- Implementation with a "mainstream"/"good" gfx lib
+- Better editing tools (fill, swap colors, ...)
+
 
 ## Dependencies :
 - ezgfx https://github.com/scouarn/ezGfx
@@ -28,22 +31,34 @@ Run `make clean all`. Then if you want a symbolic link created in _/usr/local/bi
 
 
 ## Controls :
-| Key 				| Action 	  		  |
-|-------------------|---------------------|
-| Numpad		 	| Change tile  		  |
-| Arrow keys 		| Move cursor 		  |
-| Number keys 1-4 	| Draw 				  |
-| F 				| Toggle hflip		  |
-| G 				| Toggle vflip	 	  |
-| Page up / down 	| Cycle active color  |
-| Plus / minus      | Change active color |
-| Ctrl 				| Increment of 4 	  |
-| C 			 	| Copy tile 		  |
-| V 			 	| Paste tile 		  |
-| S 			 	| Save file			  |
-| R 			 	| Reload file 		  |
-| Tab 				| Screenshot (bmp)	  |
-| Escape 		 	| Exit 				  |
+| Key 				| Action 	  		  		|
+|-------------------|---------------------------|
+| Arrow keys 		| Move char edit cursor    	|
+| Number keys 1-4 	| Draw 				  		|
+
+| Shift+arrows	 	| Move char map cursor  	|
+| C 			 	| Copy char 		  		|
+| V 			 	| Paste char 		  		|
+
+
+| Square brackets 	| Cycle active color  		|
+| Plus / minus      | Change active color 		|
+
+
+| Page up / down 	| Cycle chr bank      		|
+| Alt+arrows		| Move nametable cursor 	|
+| Return 			| Set tile to active char	|
+| Delete 			| Set tile to zero			|
+| F 				| Toggle tile hflip  		|
+| G 				| Toggle tile vflip	  		|
+| P 				| Point tile's char	id		|
+
+
+| Ctrl 				| Increment of 4 	  		|
+| Ctrl+S		 	| Save file			  		|
+| Ctrl+Z		 	| Reload file 		  		|
+| Tab 				| Screenshot (bmp)	  		|
+| Escape 		 	| Exit 				  		|
 
 -- Most actions can be done with the mouse and left click. 
 
