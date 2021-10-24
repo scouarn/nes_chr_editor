@@ -48,8 +48,10 @@ Run `make clean all`. Then if you want a symbolic link created in _/usr/local/bi
 | G 				| Toggle tile vflip	  		|
 | P 				| Point tile's char	id		|
 | Ctrl 				| Increment of 4 	  		|
-| Ctrl+S		 	| Save file			  		|
-| Ctrl+Z		 	| Reload file 		  		|
+| Shift+S		 	| Save char map		  		|
+| Shift+Z		 	| Reload char map	  		|
+| Alt+S 			| Save nametable			|
+| Alt+Z 			| Reload nametable 			|
 | Tab 				| Screenshot (bmp)	  		|
 | Escape 		 	| Exit 				  		|
 

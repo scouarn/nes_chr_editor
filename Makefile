@@ -26,4 +26,4 @@ install : $(TARGET)
 	ln -sf `pwd`/chredit $(INSTALL)
 
 clean :
-	rm -f bin/*
+	rm -f chredit source/*.o
