@@ -8,9 +8,8 @@ EZ_Sample EZ_sfx_callback(double time, int channel) {return (EZ_Sample)0;}
 
 
 
-const char* usage = "USAGE : chredit filename\n"
-					"If the file doesn't existe,"
-					"it wille be created.\n"
+const char* usage = "USAGE : chredit <char_file> <nametable_file>\n"
+					"If a file doesn't existe, it will be created.\n"
 ;
 
 
