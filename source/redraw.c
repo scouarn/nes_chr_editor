@@ -16,7 +16,7 @@ void draw_block(int id, int x0, int y0, int res, bool hflip, bool vflip) {
 		col_id |= (  plane1[y] >> x) & 0x1;
 		col_id |= (( plane2[y] >> x) & 0x1) << 1;
 
-		EZ_Px col = NES_palette[palette[col_id]];
+		EZ_Px col = NES_palette[palette[active_pal][col_id]];
 
 		int xf =  hflip ? x : BLOCK_SIZE - x - 1;
 		int yf = !vflip ? y : BLOCK_SIZE - y - 1;
@@ -46,12 +46,12 @@ void EZ_callback_draw(double dt) {
 	for (int y = 0; y < MAP_SIZE; y++) {
 
 		draw_block(active_bank*NB_TILES + x + y*MAP_SIZE, 
-				   x*BLOCK_SIZE*MAP_RES, 
-				   canvas.h/2 + y*BLOCK_SIZE*MAP_RES, 
-				   MAP_RES, 
-				   false, 
-				   false
-				);
+			x*BLOCK_SIZE*MAP_RES, 
+			canvas.h/2 + y*BLOCK_SIZE*MAP_RES, 
+			MAP_RES, 
+			false, 
+			false
+		);
 
 	}
 
@@ -60,12 +60,12 @@ void EZ_callback_draw(double dt) {
 	for (int y = 0; y < TABLE_H; y++) {
 
 		draw_block(NB_TILES*active_bank + nametable[x + y*TABLE_W], 
-				   canvas.w/2 + x*BLOCK_SIZE*TABLE_RES, 
-				   canvas.h/2 + y*BLOCK_SIZE*TABLE_RES, 
-				   1, 
-				   false, 
-				   false
-				);
+			canvas.w/2 + x*BLOCK_SIZE*TABLE_RES, 
+			canvas.h/2 + y*BLOCK_SIZE*TABLE_RES, 
+			1, 
+			false, 
+			false
+		);
 
 	}
 
@@ -85,29 +85,47 @@ void EZ_callback_draw(double dt) {
 
 	//active slot color on the main palette
 	{
-	int col = palette[active_slot];
+	int col = palette[active_pal][active_slot];
 
 	int x = col % 16;
 	int y = col / 16;
 
 
 	//current 4 color palette (with IDs)
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < NB_PALS; i++)
+	for (int j = 0; j < 4;       j++) {
 
 		//color square
-		EZ_draw2D_fillRect(canvas, NES_palette[palette[i]],
-			canvas.w/2 + i*PAL_RES*4, PAL_RES*4,
-			PAL_RES*4, PAL_RES*4 
+		EZ_draw2D_fillRect(canvas, NES_palette[palette[i][j]],
+			canvas.w/4*3 + j*PAL_RES*2, 
+			PAL_RES*4    + i*PAL_RES*2,
+			PAL_RES*2,
+			PAL_RES*2 
 
 		);
 
 		//color id
 		char buffer[4];
-		sprintf(buffer, "%02X", palette[i]);
+		sprintf(buffer, "%02X", palette[i][j]);
 		EZ_draw2D_printStr(
 			canvas, buffer, font, EZ_WHITE, EZ_BLUE, 
-			canvas.w/2 + i*PAL_RES*4, PAL_RES*4,
+			canvas.w/4*3 + j*PAL_RES*2, 
+			PAL_RES*4    + i*PAL_RES*2,
 			2, 1
+		);
+
+	}
+
+	//palette ids 
+	for (int i = 0; i < NB_PALS; i++) {
+
+		char buffer[5];
+		sprintf(buffer, "PAL%d", i);
+		EZ_draw2D_printStr(
+			canvas, buffer, font, EZ_WHITE, EZ_BLUE, 
+			canvas.w/4*3 - 5*font.w_px, 
+			PAL_RES*4 + i*PAL_RES*2,
+			4, 1
 		);
 
 	}
@@ -142,9 +160,9 @@ void EZ_callback_draw(double dt) {
 
 	//active color slot (cursor)
 	EZ_draw2D_rect(canvas, CURSOR_COLOR, 
-		canvas.w/2 + active_slot*PAL_RES*4, 
-		PAL_RES*4,
-		PAL_RES*4, PAL_RES*4 
+		canvas.w/4*3 + active_slot*PAL_RES*2, 
+		PAL_RES*4  + PAL_RES*2*active_pal,
+		PAL_RES*2, PAL_RES*2
 	);
 
 
@@ -161,8 +179,9 @@ void EZ_callback_draw(double dt) {
 	//informations
 	char buffer[64];
 
-	sprintf(buffer, "Editing $%02X\nTile at %d, %d : $%02X\n",
-		EDIT_CHAR, 
+	sprintf(buffer, "Ed$%02X Bk%d | %02d,%02d $%02X",
+		EDIT_CHAR & 0xff, 
+		active_bank,
 		ntable_x, 
 		ntable_y, 
 		nametable[ntable_x + ntable_y*TABLE_W]
@@ -171,8 +190,8 @@ void EZ_callback_draw(double dt) {
 	EZ_draw2D_printStr(canvas, buffer, font, 
 			BORDER_COLOR, EZ_BLUE, 
 			canvas.w/2 + font.w_px, 
-			canvas.h/4,
-			24, 16
+			canvas.h - font.h_px,
+			31, 1
 	);
 
 

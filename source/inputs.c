@@ -23,19 +23,19 @@ void onclick() {
 	uint x = m.x;
 	uint y = m.y;
 
-	//top left
+	//top left -- select pixel
 	if (x < canvas.w/2 && y < canvas.w/2) {
 		cursor_x = x / EDIT_RES;
 		cursor_y = y / EDIT_RES;
 	}
 
-	//bottom left
+	//bottom left -- select char
 	else if (x < canvas.w/2 && y > canvas.h/2 && y < canvas.h) {
 		select_x = x / (BLOCK_SIZE * MAP_RES);
 		select_y = (y - canvas.h/2) / (BLOCK_SIZE * MAP_RES);
 	}
 
-	//bottom right
+	//bottom right -- select nametable tile
 	else if (x > canvas.w/2 && x < canvas.w && y > canvas.h/2 && y < canvas.h) {
 		ntable_x = (x - canvas.w/2) / (BLOCK_SIZE * TABLE_RES);
 		ntable_y = (y - canvas.h/2) / (BLOCK_SIZE * TABLE_RES);
@@ -44,14 +44,17 @@ void onclick() {
 	//top right
 	else if (x > canvas.w/2 && x < canvas.w && y < canvas.h/2) {
 
+		//pick color
 		if (y < PAL_RES * 4) {
 			int px = (x - canvas.w/2) / PAL_RES;
 			int py = y / PAL_RES;
-			palette[active_slot] = (px + py*16) % PAL_SIZE;
+			palette[active_pal][active_slot] = (px + py*16) % PAL_SIZE;
 		}
-		else if (y < PAL_RES * 8) {
-			active_slot = (x - canvas.w/2) / (PAL_RES * 4);
-			active_slot %= 4;
+
+		//select active color & palette
+		else if (x > canvas.w/4*3) {
+			active_slot = ((x - canvas.w/4*3) / (PAL_RES * 2)) % 4;
+			active_pal  = ((y - PAL_RES*4)    / (PAL_RES * 2)) % NB_PALS;
 		}
 	}
 
@@ -86,7 +89,7 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 	//name table cursor
 	case ALT_MASK | K_LEFT  : ntable_x = (ntable_x - inc) % TABLE_W; break;
-	case ALT_MASK | K_UP    : ntable_y = (ntable_y - inc) % TABLE_H; break;
+	case ALT_MASK | K_UP    : ntable_y = (ntable_y + TABLE_H - inc) % TABLE_H; break;
 	case ALT_MASK | K_RIGHT : ntable_x = (ntable_x + inc) % TABLE_W; break;
 	case ALT_MASK | K_DOWN  : ntable_y = (ntable_y + inc) % TABLE_H; break;
 
@@ -98,8 +101,13 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 
 	//active color slot
-	case K_OPEN  : active_slot = (active_slot - inc) % 4; break;
 	case K_CLOSE : active_slot = (active_slot + inc) % 4; break;
+	case K_OPEN  : active_slot = (active_slot - inc) % 4; break;
+
+	//active palette
+	case SHIFT_MASK | K_CLOSE : active_pal = (active_pal + inc) % NB_PALS; break;
+	case SHIFT_MASK | K_OPEN  : active_pal = (active_pal - inc) % NB_PALS; break;
+
 
 
 	//draw
@@ -107,12 +115,13 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 
 	//change color
-	case K_PLUS  : palette[active_slot] = (palette[active_slot] + inc) % PAL_SIZE; break;
-	case K_MINUS : palette[active_slot] = (palette[active_slot] - inc) % PAL_SIZE; break;
+	case K_PLUS  : palette[active_pal][active_slot] = (palette[active_pal][active_slot] + inc) % PAL_SIZE; break;
+	case K_MINUS : palette[active_pal][active_slot] = (palette[active_pal][active_slot] - inc) % PAL_SIZE; break;
+
 
 	//cycle active bank
-	case K_PGDN : active_bank = (active_bank + inc) % NB_BANKS;	break;
-	case K_PGUP : active_bank = (active_bank - inc) % NB_BANKS;	break;
+	case K_PGDN : active_bank = (active_bank + inc) % nb_banks;	break;
+	case K_PGUP : active_bank = (active_bank - inc) % nb_banks;	break;
 
 
 	//set tile
@@ -166,7 +175,7 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 		if (fp != NULL) {
 			printf("Saving char map %s\n", chr_file_name);
-			fwrite(chr_data, 1, NB_TILES * NB_BANKS * BLOCK_SIZE * NB_PLANES, fp);
+			fwrite(chr_data, 1, NB_TILES * nb_banks * BLOCK_SIZE * NB_PLANES, fp);
 			fclose(fp);
 		}
 		else 

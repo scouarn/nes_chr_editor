@@ -12,16 +12,22 @@ uint cursor_x, cursor_y;
 uint select_x, select_y;
 uint ntable_x, ntable_y;
 
+uint nb_banks = NB_BANKS_DEFAULT;
 uint active_bank;
 uint active_slot;
+uint active_pal;
 
 
 EZ_Px NES_palette[PAL_SIZE];
-uint8_t palette[4] = {0x00, 0x16, 0x37, 0x08}; //mario face palette
+uint8_t palette[NB_PALS][4] = {
+	{0x0f, 0x00, 0x10, 0x20}, //gray scale
+	{0x20, 0x10, 0x00, 0x0f}, //gray scale reversed
+	{0x00, 0x16, 0x37, 0x08}, //mario sprite palette
+	{0x00, 0x37, 0x16, 0x08}, //mario bg palette
+};
 
-
+uint8_t *chr_data;
 uint8_t clipboard[BLOCK_SIZE * NB_PLANES];
-uint8_t chr_data[NB_TILES * NB_PLANES * NB_BANKS * BLOCK_SIZE];
 uint8_t nametable[TABLE_SIZE];
 
 
@@ -34,7 +40,7 @@ void reload_char() {
 
 	if (fp != NULL) {
 		printf("Loading char map %s\n", chr_file_name);
-		fread(chr_data, 1, NB_TILES * NB_BANKS * BLOCK_SIZE * NB_PLANES, fp);
+		fread(chr_data, 1, NB_TILES * nb_banks * BLOCK_SIZE * NB_PLANES, fp);
 		fclose(fp);
 	}
 	else 
@@ -51,7 +57,7 @@ void reload_nametable() {
 
 	if (fp != NULL) {
 		printf("Loading nametable %s\n", nt_file_name);
-		fread(chr_data, 1, NB_TILES * NB_BANKS * BLOCK_SIZE * NB_PLANES, fp);
+		fread(nametable, 1, NB_TILES * nb_banks * BLOCK_SIZE * NB_PLANES, fp);
 		fclose(fp);
 	}
 	else 
@@ -74,6 +80,7 @@ void EZ_callback_init() {
 	
 
 	//load data
+	chr_data = malloc(NB_TILES * NB_PLANES * nb_banks * BLOCK_SIZE);
 	reload_char();
 	reload_nametable();
 
@@ -85,7 +92,8 @@ void EZ_callback_init() {
 
 	FILE* palfile = fopen(buffer, "r");
 
-	ASSERTM (palfile != NULL, "Couldn't load palette");
+	if (palfile == NULL)
+		WARNING("Couldn't load palette");
 
 	for (int i = 0; i < PAL_SIZE; i++)	{
 		int r, g, b;
@@ -114,4 +122,5 @@ void EZ_callback_init() {
 void EZ_callback_kill() {
   EZ_freeImage(canvas);
   EZ_freeFont(font);
+  free(chr_data);
 }

@@ -4,10 +4,8 @@ Tile editor for NES character rom.
 Only works on linux (for now).
 
 ## TODO :
-- Attribute table (flips, palette)
-- Save nametable 
+- Attribute table (flips, palette,...)
 - Copy tile (+its attributes)
-- 4 background palettes
 
 - Support for char roms larger than 8k
 - Controls config
@@ -35,25 +33,30 @@ Run `make clean all`. Then if you want a symbolic link created in _/usr/local/bi
 |-------------------|---------------------------|
 | Arrow keys 		| Move char edit cursor    	|
 | Number keys 1-4 	| Draw 				  		|
-| Shift+arrows	 	| Move char map cursor  	|
-| C 			 	| Copy char 		  		|
-| V 			 	| Paste char 		  		|
-| Square brackets 	| Cycle active color  		|
 | Plus / minus      | Change active color 		|
-| Page up / down 	| Cycle chr bank      		|
+| Square brackets 	| Cycle active color  		|
+| Shift+brackets 	| Cycle active palette		|
+|-------------------|---------------------------|
+| Shift+arrows	 	| Move char map cursor  	|
+| Shift+C		 	| Copy char 		  		|
+| Shift+V		 	| Paste char 		  		|
+| Page up / down	| Cycle char bank      		|
+| Shift+S		 	| Save char map		  		|
+| Shift+Z		 	| Reload char map	  		|
+|-------------------|---------------------------|
 | Alt+arrows		| Move nametable cursor 	|
+| Alt+S 			| Save nametable			|
+| Alt+Z 			| Reload nametable 			|
 | Return 			| Set tile to active char	|
 | Delete 			| Set tile to zero			|
 | F 				| Toggle tile hflip  		|
 | G 				| Toggle tile vflip	  		|
 | P 				| Point tile's char	id		|
+|-------------------|---------------------------|
 | Ctrl 				| Increment of 4 	  		|
-| Shift+S		 	| Save char map		  		|
-| Shift+Z		 	| Reload char map	  		|
-| Alt+S 			| Save nametable			|
-| Alt+Z 			| Reload nametable 			|
 | Tab 				| Screenshot (bmp)	  		|
 | Escape 		 	| Exit 				  		|
+
 
 -- Most actions can be done with the mouse and left click. 
 
