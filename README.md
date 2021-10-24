@@ -27,7 +27,7 @@ Run `make clean all`. Then if you want a symbolic link created in _/usr/local/bi
 
 ## Usage :
 
-`chredit /path/to/file.chr`
+`chredit -c charrom.chr  -n nametable.bin [-b nb_banks]`
 
 
 ## Controls :
