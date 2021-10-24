@@ -1,11 +1,13 @@
 # NES char editor
 
-Tile editor for NES character rom.
+Tile editor for NES character rom and nametable.
 Only works on linux (for now).
 
 ## TODO :
 - Attribute table (flips, palette,...)
 - Copy tile (+its attributes)
+
+- Find a better name
 
 - Support for char roms larger than 8k
 - Controls config
