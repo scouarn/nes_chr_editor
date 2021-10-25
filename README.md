@@ -33,6 +33,8 @@ Run `make clean all`. Then if you want a symbolic link created in _/usr/local/bi
 |-------------------|---------------------------|
 | Arrow keys 		| Move char edit cursor    	|
 | Number keys 1-4 	| Draw 				  		|
+| Alt+Number keys   | Fill 						|
+| Shift+Number keys | Swap with active color	|
 | Plus / minus      | Change active color 		|
 | Square brackets 	| Cycle active color  		|
 | Shift+brackets 	| Cycle active palette		|
