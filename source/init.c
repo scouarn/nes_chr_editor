@@ -19,12 +19,7 @@ uint active_pal;
 
 
 EZ_Px NES_palette[PAL_SIZE];
-uint8_t palette[NB_PALS][4] = {
-	{0x0f, 0x00, 0x10, 0x20}, //gray scale
-	{0x20, 0x10, 0x00, 0x0f}, //gray scale reversed
-	{0x00, 0x16, 0x37, 0x08}, //mario sprite palette
-	{0x00, 0x37, 0x16, 0x08}, //mario bg palette
-};
+uint8_t palette[NB_PALS][4];
 
 uint8_t *chr_data;
 uint8_t clipboard[BLOCK_SIZE * NB_PLANES];
@@ -94,6 +89,11 @@ void EZ_callback_init() {
 
 	if (palfile == NULL)
 		WARNING("Couldn't load palette");
+
+	for (int i = 0; i < NB_PALS; i++)
+	for (int j = 0; j < 4;       j++)
+		fscanf(palfile, "%hhX", &palette[i][j]);
+
 
 	for (int i = 0; i < PAL_SIZE; i++)	{
 		int r, g, b;

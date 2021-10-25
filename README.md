@@ -9,11 +9,9 @@ Only works on linux (for now).
 
 - Find a better name
 
-- Support for char roms larger than 8k
 - Controls config
 - Portable local path/link solution -- config.h ?
 - Implementation with a "mainstream"/"good" gfx lib
-- Better editing tools (fill, swap colors, ...)
 
 
 ## Dependencies :

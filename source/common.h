@@ -35,8 +35,8 @@
 void reload_char();
 void reload_nametable();
 void set_pixel(unsigned int id, int x, int y, int col);
-
-
+void swap(int col1, int col2);
+void fill(int x, int y, int rep, int ori);
 
 //globals
 extern EZ_Image canvas;

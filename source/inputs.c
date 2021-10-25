@@ -15,6 +15,54 @@ void set_pixel(unsigned int id, int x, int y, int col) {
 
 }
 
+int get_pixel(unsigned int id, int x, int y) {
+	unsigned char* plane1 = chr_data + (id * BLOCK_SIZE * NB_PLANES);
+	unsigned char* plane2 = plane1 + BLOCK_SIZE;
+
+	int offset = BLOCK_SIZE - x - 1;
+
+	int col = ((plane1[y] >> offset) &  1)
+			| ((plane2[y] >> offset) << 1);
+
+	return col & 0b11;
+
+}
+
+
+
+void swap(int col1, int col2) {
+
+
+	for (int i = 0; i < BLOCK_SIZE; i++)
+	for (int j = 0; j < BLOCK_SIZE; j++) {
+		if (col1 == get_pixel(EDIT_CHAR, i, j))
+			set_pixel(EDIT_CHAR, i, j, col2);
+
+		else if (col2 == get_pixel(EDIT_CHAR, i, j))
+			set_pixel(EDIT_CHAR, i, j, col1);
+
+	}
+
+}
+
+void fill(int x, int y, int rep, int ori) {
+
+	if (x < 0 || x >= BLOCK_SIZE || y < 0 || y >= BLOCK_SIZE)
+		return;
+	
+	
+	int col = get_pixel(EDIT_CHAR, x, y);
+	if (col != ori || col == rep)
+		return;
+
+	set_pixel(EDIT_CHAR, x, y, rep); 
+
+	fill(x+1, y, rep, ori);
+	fill(x-1, y, rep, ori);
+	fill(x, y+1, rep, ori);
+	fill(x, y-1, rep, ori);
+
+}
 
 
 void onclick() {
@@ -111,7 +159,19 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 
 	//draw
-	case K_1 ... K_4 : set_pixel(EDIT_CHAR, cursor_x, cursor_y, key.keyCode - K_1); break;
+	case K_1 ... K_4 : 
+		set_pixel(EDIT_CHAR, cursor_x, cursor_y, key.keyCode - K_1); 
+	break;
+
+	//swap palette
+	case SHIFT_MASK | K_1 ... SHIFT_MASK | K_4 :
+		swap(key.keyCode - K_1, active_slot); 
+	break;
+
+	//fill
+	case ALT_MASK | K_1 ... ALT_MASK | K_4 :
+		fill(cursor_x, cursor_y, key.keyCode - K_1, get_pixel(EDIT_CHAR, cursor_x, cursor_y)); 
+	break;
 
 
 	//change color
