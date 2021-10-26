@@ -1,7 +1,7 @@
 CC := gcc
 CFLAGS := -Wall 
 
-INCLUDE := -I../ezGfx/include/
+INCLUDE := -Iezgfx/include/
 LIBS := -Lezgfx -lezgfx
 
 TARGET := chredit
