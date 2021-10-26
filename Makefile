@@ -1,7 +1,7 @@
 CC := gcc
 CFLAGS := -Wall 
 
-INCLUDE := ../ezGfx/include/
+INCLUDE := -I../ezGfx/include/
 LIBS := -Lezgfx -lezgfx
 
 TARGET := chredit
@@ -13,12 +13,12 @@ OBJECTS := $(patsubst %.c,%.o,$(SOURCES))
 
 
 all : $(TARGET)
-
 $(TARGET) : $(OBJECTS)
-	$(CC) $(CFLAGS) -I$(INCLUDE) $(LIBS) -o $@ $^ 
+	$(CC) $(CFLAGS) $(LIBS) -o $@ $^ 
 
 %.o : %.c
-	$(CC) $(CFLAGS) -I$(INCLUDE) -o $@ -c $<
+	echo | gcc $(INCLUDE) -E -Wp,-v -
+	$(CC) $(CFLAGS) $(INCLUDE) -o $@ -c $<
 
 
 .PHONY : install
