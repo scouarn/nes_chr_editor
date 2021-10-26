@@ -31,9 +31,16 @@
 #define CURSOR_COLOR EZ_YELLOW
 
 #define EDIT_CHAR (NB_TILES*active_bank + select_x + select_y*MAP_SIZE)
+#define META_ID 	(960 + ntable_x/4 + (ntable_y/4)*8)
+#define META_OFFSET (ntable_x%4/2 + (ntable_y%4/2)*2)
+
+#ifndef SWAP
+#define SWAP(X,Y) ({typeof(X) tmp = X; X = Y; Y = tmp;})
+#endif
 
 void reload_char();
 void reload_nametable();
+void draw_block(int id, int x0, int y0, int res, int pal);
 void set_pixel(unsigned int id, int x, int y, int col);
 void swap(int col1, int col2);
 void fill(int x, int y, int rep, int ori);
@@ -55,6 +62,7 @@ extern uint active_bank;
 extern uint active_slot;
 extern uint active_pal;
 
+extern bool show_meta_grid;
 
 extern EZ_Px NES_palette[];
 extern uint8_t palette[NB_PALS][4];

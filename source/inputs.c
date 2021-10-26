@@ -158,9 +158,14 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 
 
-	//draw
-	case K_1 ... K_4 : 
-		set_pixel(EDIT_CHAR, cursor_x, cursor_y, key.keyCode - K_1); 
+	//draw/fill
+	case K_1 ... K_4 :
+
+		if (ctrl) //harder than using CTRL_MASK 
+			fill(cursor_x, cursor_y, key.keyCode - K_1, get_pixel(EDIT_CHAR, cursor_x, cursor_y)); 
+		else 
+			set_pixel(EDIT_CHAR, cursor_x, cursor_y, key.keyCode - K_1); 
+		
 	break;
 
 	//swap palette
@@ -168,9 +173,10 @@ void EZ_callback_keyPressed(EZ_Key key) {
 		swap(key.keyCode - K_1, active_slot); 
 	break;
 
-	//fill
+	//nametable set palette
 	case ALT_MASK | K_1 ... ALT_MASK | K_4 :
-		fill(cursor_x, cursor_y, key.keyCode - K_1, get_pixel(EDIT_CHAR, cursor_x, cursor_y)); 
+		nametable[META_ID] &= ~(0b11 << META_OFFSET*2);
+		nametable[META_ID] |= ((key.keyCode - K_1) & 0b11) << META_OFFSET*2;
 	break;
 
 
@@ -190,10 +196,36 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 
 	//flip horizontally
-	case K_F : break;
+	case K_D : 
+		for (int i = 0; i < BLOCK_SIZE*NB_PLANES; i++) {
+
+			uint8_t tmp = chr_data[i + EDIT_CHAR*BLOCK_SIZE*NB_PLANES];
+			chr_data[i + EDIT_CHAR*BLOCK_SIZE*NB_PLANES] = 0;
+
+			//bit back the bits backward
+			for (int j = 0; j < BLOCK_SIZE; j++)
+				chr_data[i + EDIT_CHAR*BLOCK_SIZE*NB_PLANES] |= ((tmp >> j) & 1) << (BLOCK_SIZE-j-1);
+		}
+	break;
 
 	//flip vertically
-	case K_G : break;
+	case K_F : 
+		for (int i = 0; i < BLOCK_SIZE/2; i++) {
+
+			//plane 1
+			SWAP(chr_data[i + EDIT_CHAR*BLOCK_SIZE*NB_PLANES],
+				 chr_data[BLOCK_SIZE-i-1 + EDIT_CHAR*BLOCK_SIZE*NB_PLANES]
+				);
+				
+			//plane 2
+			SWAP(chr_data[BLOCK_SIZE+i + EDIT_CHAR*BLOCK_SIZE*NB_PLANES],
+				 chr_data[BLOCK_SIZE*2-i-1 + EDIT_CHAR*BLOCK_SIZE*NB_PLANES]
+				);
+		}
+	break;
+
+	//toggle grid
+	case K_G : show_meta_grid ^= true; break;
 
 
 	//point

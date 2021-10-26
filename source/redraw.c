@@ -1,7 +1,7 @@
 #include "common.h"
 
 
-void draw_block(int id, int x0, int y0, int res, bool hflip, bool vflip) {
+void draw_block(int id, int x0, int y0, int res, int pal) {
 
 
 	unsigned char* plane1 = chr_data + (id * BLOCK_SIZE * NB_PLANES);
@@ -16,13 +16,9 @@ void draw_block(int id, int x0, int y0, int res, bool hflip, bool vflip) {
 		col_id |= (  plane1[y] >> x) & 0x1;
 		col_id |= (( plane2[y] >> x) & 0x1) << 1;
 
-		EZ_Px col = NES_palette[palette[active_pal][col_id]];
+		EZ_Px col = NES_palette[palette[pal][col_id]];
 
-		int xf =  hflip ? x : BLOCK_SIZE - x - 1;
-		int yf = !vflip ? y : BLOCK_SIZE - y - 1;
-
-
-		EZ_draw2D_fillRect(canvas, col, x0 + (xf) * res, y0 + (yf) * res, res, res);
+		EZ_draw2D_fillRect(canvas, col, x0 + (BLOCK_SIZE - x - 1)*res, y0 + y*res, res, res);
 
 	}
 
@@ -38,7 +34,7 @@ void EZ_callback_draw(double dt) {
 
 
 	//edit char
-	draw_block(EDIT_CHAR, 0, 0, EDIT_RES, false, false);
+	draw_block(EDIT_CHAR, 0, 0, EDIT_RES, active_pal);
 
 
 	//char map
@@ -49,8 +45,7 @@ void EZ_callback_draw(double dt) {
 			x*BLOCK_SIZE*MAP_RES, 
 			canvas.h/2 + y*BLOCK_SIZE*MAP_RES, 
 			MAP_RES, 
-			false, 
-			false
+			active_pal
 		);
 
 	}
@@ -59,12 +54,15 @@ void EZ_callback_draw(double dt) {
 	for (int x = 0; x < TABLE_W; x++)
 	for (int y = 0; y < TABLE_H; y++) {
 
+		uint tile = 960 + x/4 + (y / 4)*8;
+		uint offset = x%4/2 + (y%4/2)*2;
+		uint col = (nametable[tile] >> offset*2) & 0b11;
+
 		draw_block(NB_TILES*active_bank + nametable[x + y*TABLE_W], 
 			canvas.w/2 + x*BLOCK_SIZE*TABLE_RES, 
 			canvas.h/2 + y*BLOCK_SIZE*TABLE_RES, 
-			1, 
-			false, 
-			false
+			1,
+			col
 		);
 
 	}
@@ -130,6 +128,24 @@ void EZ_callback_draw(double dt) {
 
 	}
 
+	//meta grid
+
+	if (show_meta_grid)
+	for (int i = 0; i < TABLE_W; i += 4) {
+		EZ_draw2D_line(canvas, BORDER_COLOR, 
+			canvas.w/2 + i*BLOCK_SIZE, 
+			canvas.h/2, 
+			canvas.w/2 + i*BLOCK_SIZE,
+			canvas.h
+		);
+
+		EZ_draw2D_line(canvas, BORDER_COLOR, 
+			canvas.w/2, 
+			canvas.h/2 + i*BLOCK_SIZE, 
+			canvas.w,
+			canvas.h/2 + i*BLOCK_SIZE
+		);
+	}
 
 	//borders
 	EZ_draw2D_line(canvas, BORDER_COLOR, 0, canvas.h/2, canvas.w, canvas.h/2);
@@ -179,19 +195,27 @@ void EZ_callback_draw(double dt) {
 	//informations
 	char buffer[64];
 
-	sprintf(buffer, "Ed$%02X Bk%d | %02d,%02d $%02X",
+	sprintf(buffer, "Editing $%02X Bank %d\n"
+					"Tile %02d,%02d : $%02X\n"
+					"Meta %d,%d : PAL%d",
+
 		EDIT_CHAR & 0xff, 
 		active_bank,
-		ntable_x, 
-		ntable_y, 
-		nametable[ntable_x + ntable_y*TABLE_W]
+
+		ntable_x,
+		ntable_y,
+		nametable[ntable_x + ntable_y*TABLE_W],
+
+		ntable_x/2,
+		ntable_y/2,
+		(nametable[META_ID] >> META_OFFSET*2) & 0b11
 	);
 
 	EZ_draw2D_printStr(canvas, buffer, font, 
 			BORDER_COLOR, EZ_BLUE, 
 			canvas.w/2 + font.w_px, 
-			canvas.h - font.h_px,
-			31, 1
+			canvas.h/2 - font.h_px*4,
+			31, 4
 	);
 
 

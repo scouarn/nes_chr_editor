@@ -17,6 +17,7 @@ uint active_bank;
 uint active_slot;
 uint active_pal;
 
+bool show_meta_grid = true;
 
 EZ_Px NES_palette[PAL_SIZE];
 uint8_t palette[NB_PALS][4];
