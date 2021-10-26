@@ -17,7 +17,6 @@ $(TARGET) : $(OBJECTS)
 	$(CC) $(CFLAGS) $(LIBS) -o $@ $^ 
 
 %.o : %.c
-	echo | gcc $(INCLUDE) -E -Wp,-v -
 	$(CC) $(CFLAGS) $(INCLUDE) -o $@ -c $<
 
 
