@@ -34,6 +34,7 @@ Run `make clean all`. Then if you want a symbolic link created in _/usr/local/bi
 | Shift+Number keys | Swap with active color	|
 | D 				| Horizontal flip  			|
 | F 				| Vertical flip	  			|
+| Keypad 			| Shift by one pixel 	    |
 | Plus / minus      | Change active color 		|
 | Square brackets 	| Cycle active color  		|
 | Shift+brackets 	| Cycle active palette		|

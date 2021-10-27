@@ -224,6 +224,46 @@ void EZ_callback_keyPressed(EZ_Key key) {
 		}
 	break;
 
+	//shift down
+	case KP_2 :
+		for (int i = BLOCK_SIZE-1; i >= 1; i--) {
+			chr_data[i   + EDIT_CHAR * BLOCK_SIZE * NB_PLANES]
+		  = chr_data[i-1 + EDIT_CHAR * BLOCK_SIZE * NB_PLANES];
+
+			chr_data[i   + BLOCK_SIZE + EDIT_CHAR * BLOCK_SIZE * NB_PLANES]
+		  = chr_data[i-1 + BLOCK_SIZE + EDIT_CHAR * BLOCK_SIZE * NB_PLANES];
+		}
+		chr_data[EDIT_CHAR * BLOCK_SIZE * NB_PLANES] = 0;
+		chr_data[BLOCK_SIZE + EDIT_CHAR * BLOCK_SIZE * NB_PLANES] = 0;
+	break;
+
+	//shift up
+	case KP_8 :
+		for (int i = 0; i < BLOCK_SIZE-1; i++) {
+			chr_data[i   + EDIT_CHAR * BLOCK_SIZE * NB_PLANES]
+		  = chr_data[i+1 + EDIT_CHAR * BLOCK_SIZE * NB_PLANES];
+
+			chr_data[i   + BLOCK_SIZE + EDIT_CHAR * BLOCK_SIZE * NB_PLANES]
+		  = chr_data[i+1 + BLOCK_SIZE + EDIT_CHAR * BLOCK_SIZE * NB_PLANES];
+		}
+		chr_data[BLOCK_SIZE-1 + EDIT_CHAR * BLOCK_SIZE * NB_PLANES] = 0;
+		chr_data[BLOCK_SIZE-1 + BLOCK_SIZE + EDIT_CHAR * BLOCK_SIZE * NB_PLANES] = 0;
+	break;
+
+	//shift left
+	case KP_4 :
+		for (int i = 0; i < BLOCK_SIZE*NB_PLANES; i++) {
+			chr_data[i + EDIT_CHAR * BLOCK_SIZE * NB_PLANES] <<= 1;
+		}
+	break;
+
+	//shift right
+	case KP_6 :
+		for (int i = 0; i < BLOCK_SIZE*NB_PLANES; i++) {
+			chr_data[i + EDIT_CHAR * BLOCK_SIZE * NB_PLANES] >>= 1;
+		}
+	break;
+
 	//toggle grid
 	case K_G : show_meta_grid ^= true; break;
 
@@ -239,7 +279,7 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 
 	//copy chr
-	case K_C :
+	case SHIFT_MASK | K_C :
 		for (int i = 0; i < BLOCK_SIZE * NB_PLANES; i++) {
 			clipboard[i] = chr_data[i + EDIT_CHAR * BLOCK_SIZE * NB_PLANES]; 
 		}
@@ -247,7 +287,7 @@ void EZ_callback_keyPressed(EZ_Key key) {
 
 
 	//paste chr
-	case K_V :
+	case SHIFT_MASK | K_V :
 		for (int i = 0; i < BLOCK_SIZE * NB_PLANES; i++) {
 			chr_data[i + EDIT_CHAR * BLOCK_SIZE * NB_PLANES] = clipboard[i]; 
 		}
